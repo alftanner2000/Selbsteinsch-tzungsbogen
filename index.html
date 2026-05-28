@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selbsteinschätzungsbogen mit KI erstellen</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #eef4fb, #ffffff);
+      color: #1f2933;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+
+    .hero {
+      background: white;
+      border-radius: 28px;
+      padding: 42px;
+      box-shadow: 0 20px 50px rgba(31, 78, 121, 0.14);
+      border: 1px solid #dbe5ef;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e7f0fa;
+      color: #1f4e79;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      color: #163a5c;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+      margin: 0 0 18px;
+    }
+
+    p {
+      font-size: 1.08rem;
+      line-height: 1.6;
+      color: #52616f;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .button, button {
+      border: none;
+      border-radius: 14px;
+      padding: 15px 22px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .primary {
+      background: #1f4e79;
+      color: white;
+    }
+
+    .secondary {
+      background: #e7f0fa;
+      color: #163a5c;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .step {
+      background: white;
+      padding: 24px;
+      border-radius: 22px;
+      border: 1px solid #dbe5ef;
+      box-shadow: 0 10px 28px rgba(31, 78, 121, 0.08);
+    }
+
+    .step h2 {
+      margin: 0 0 10px;
+      color: #163a5c;
+      font-size: 1.2rem;
+    }
+
+    .promptbox {
+      margin-top: 30px;
+      background: #111827;
+      color: white;
+      padding: 24px;
+      border-radius: 22px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      margin-top: 12px;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 16px;
+      font-family: Consolas, monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .hint {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff7df;
+      border: 1px solid #efd287;
+      color: #5f4700;
+    }
+
+    .status {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #e7f7ed;
+      color: #17633a;
+      font-weight: bold;
+    }
+
+    @media (max-width: 800px) {
+      .hero {
+        padding: 28px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      .button, button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="hero">
+      <span class="badge">KI-Werkzeug für Lehrkräfte</span>
+
+      <h1>Interaktiven Selbsteinschätzungsbogen erstellen</h1>
+
+      <p>
+        Starte ChatGPT mit einem vorbereiteten Prompt. Lade anschließend eine Klassenarbeit,
+        einen Erwartungshorizont, ein Arbeitsblatt oder Lernziele hoch. Daraus wird ein fertiger
+        HTML-Selbsteinschätzungsbogen für Schülerinnen und Schüler erstellt.
+      </p>
+
+      <div class="buttons">
+        <a id="directLink" class="button primary" target="_blank" rel="noopener">
+          Mit ChatGPT Free starten
+        </a>
+
+        <button class="secondary" onclick="copyPrompt()">
+          Falls nötig: Prompt kopieren
+        </button>
+      </div>
+
+      <div id="status" class="status">
+        Prompt wurde kopiert.
+      </div>
+    </section>
+
+    <section class="steps">
+      <div class="step">
+        <h2>1. ChatGPT öffnen</h2>
+        <p>Der Button öffnet ChatGPT möglichst direkt mit vorbereitetem Prompt.</p>
+      </div>
+
+      <div class="step">
+        <h2>2. Material eingeben</h2>
+        <p>Klassenarbeit, Erwartungshorizont, Arbeitsblatt oder Lernziele hochladen oder einfügen.</p>
+      </div>
+
+      <div class="step">
+        <h2>3. HTML nutzen</h2>
+        <p>Die erzeugte HTML-Datei herunterladen oder den Code als Datei speichern.</p>
+      </div>
+    </section>
+
+    <section class="promptbox">
+      <h2>Fallback-Prompt zum Kopieren</h2>
+      <p style="color:#cbd5e1;">
+        Falls ChatGPT den Prompt nicht automatisch übernimmt, diesen Text kopieren und in ChatGPT einfügen.
+      </p>
+
+      <textarea id="promptText" readonly></textarea>
+
+      <div class="buttons">
+        <button class="primary" onclick="copyPrompt()">Prompt kopieren</button>
+      </div>
+    </section>
+
+    <div class="hint">
+      <strong>Hinweis:</strong> Der Direktstart funktioniert in vielen Fällen auch mit ChatGPT Free.
+      Falls der Prompt nicht automatisch im Eingabefeld erscheint, einfach den Kopierbutton nutzen.
+    </div>
+  </main>
+
+  <script>
+    const shortPrompt = `Du bist ein Assistent für Lehrkräfte. Erstelle aus einer hochgeladenen Klassenarbeit, einem Erwartungshorizont, einem Arbeitsblatt oder aus Lernzielen einen fertigen interaktiven Selbsteinschätzungsbogen als vollständige HTML-Datei für Schülerinnen und Schüler.
+
+Wenn noch keine Datei und kein Thema vorliegen, frage zuerst kurz:
+„Bitte lade jetzt den Erwartungshorizont, die Klassenarbeit, ein Arbeitsblatt oder Lernziele hoch – oder schreibe das Thema direkt hier in den Chat. Danach erstelle ich daraus den fertigen Selbsteinschätzungsbogen.“
+
+Der fertige Bogen soll professionell gestaltet, Moodle-kompatibel, druckbar und als PDF speicherbar sein. Nutze nur HTML, CSS und JavaScript in einer Datei. Keine externen Bibliotheken. Verwende UTF-8.
+
+Der Bogen soll enthalten:
+- Überschrift und kurze Einleitung für Schülerinnen und Schüler
+- Bewertungslegende: ✔✔✔ = sicher, ✔✔ = größtenteils sicher, ✔ = unsicher, ○ = noch nicht sicher
+- Tabelle mit konkreten „Ich kann …“-Aussagen aus dem Material
+- Live-Durchschnitt
+- Ampelsystem: Grün ab 2,5, Gelb ab 1,5, Rot darunter
+- automatische Wiederholungsbox für alle Punkte mit 0 oder 1 Punkt
+- Textfeld: „Diese Themen möchte ich noch wiederholen“
+- Textfeld: „Diese Materialien helfen mir beim Lernen“
+- Zusammenfassungsbox mit Durchschnitt, Ampelstatus, Wiederholungsthemen und Lernmaterialien
+- Button: „Ergebnis als PDF speichern / drucken“
+- Hinweis für Schülerinnen und Schüler, die PDF anschließend in Moodle hochzuladen
+
+Wichtig:
+Das fertige Ergebnis darf keine technischen Hinweise, keine Admin-Kommentare und keine Erklärungen über den Code enthalten. Es soll direkt als fertiges Schülerprodukt nutzbar sein.
+
+Wenn technisch möglich, stelle die fertige HTML-Datei direkt als herunterladbare .html-Datei bereit. Falls nicht, gib ausschließlich den vollständigen HTML-Code in einem einzigen Codeblock aus.`;
+
+    const longPrompt = `Du bist ein Assistent zur Erstellung eines fertigen interaktiven Selbsteinschätzungsbogens für Schülerinnen und Schüler.
+
+Ziel:
+Am Ende soll ein direkt nutzbares Produkt entstehen: eine vollständige einzelne HTML-Datei, die Schülerinnen und Schüler ausfüllen, als PDF speichern oder drucken und anschließend in Moodle hochladen können.
+
+Wichtig:
+Das fertige Ergebnis darf keine technischen Hinweise, keine Admin-Kommentare und keine Erklärungen über den Code enthalten.
+Das Ergebnis soll so wirken, als wäre es direkt für Schülerinnen und Schüler erstellt worden.
+
+Arbeitsweise:
+Wenn noch kein Thema, keine Lernziele und keine Datei vorliegen, erstelle noch keinen HTML-Code.
+Stelle stattdessen genau diese kurze Rückfrage:
+
+„Bitte lade jetzt den Erwartungshorizont, die Klassenarbeit, ein Arbeitsblatt oder Lernziele hoch – oder schreibe das Thema direkt hier in den Chat. Danach erstelle ich daraus den fertigen Selbsteinschätzungsbogen.“
+
+Wenn ein Thema, Lernziele oder eine Datei vorliegen:
+- Nutze diese Inhalte als Grundlage.
+- Wenn eine Datei hochgeladen wurde, beziehe den Bogen ausdrücklich auf diese Datei.
+- Analysiere die Inhalte.
+- Formuliere daraus konkrete „Ich kann …“-Aussagen.
+- Erfinde keine allgemeinen Kompetenzen, wenn konkrete Inhalte vorhanden sind.
+- Falls die Inhalte unklar oder zu knapp sind, stelle höchstens eine kurze Rückfrage.
+
+Technische Vorgaben:
+- Erstelle eine vollständige einzelne HTML-Datei.
+- Nutze ausschließlich HTML, CSS und JavaScript in einer Datei.
+- Keine externen Bibliotheken.
+- Keine externen Schriftarten.
+- Keine externen Dateien.
+- Verwende unbedingt <meta charset="UTF-8">.
+- Alle deutschen Umlaute und Sonderzeichen müssen korrekt dargestellt werden.
+- Falls Sonderzeichen Probleme machen könnten, nutze HTML-Entities.
+
+Moodle-Kompatibilität:
+- Der Code darf keine globalen Moodle-Styles verändern.
+- Alle CSS-Regeln müssen über einen eindeutigen Wrapper gekapselt sein, z. B. .seb-container.
+- Verwende keine allgemeinen Selektoren wie body, table, button, input, textarea, h1, p ohne Wrapper.
+- Das Design darf andere Moodlebereiche nicht beeinflussen.
+
+Design:
+- Professionell, modern, ruhig und übersichtlich.
+- Serifenlose Schrift, bevorzugt Arial.
+- Maximale Breite: 1100px.
+- Farbschema: Blau/Grau mit dezenten Akzenten.
+- Kartenoptik mit abgerundeten Ecken.
+- Dezente Schatten.
+- Gute Lesbarkeit auf Desktop, Tablet und Smartphone.
+- Druckansicht/PDF-Ausgabe sauber und übersichtlich.
+- Keine verspielten Effekte.
+
+Inhaltliche Struktur der HTML-Seite:
+1. Überschrift:
+   „Selbsteinschätzung: [Thema]“
+2. Kurze Einleitung für Schülerinnen und Schüler.
+3. Hinweis-Box:
+   „Fülle den Bogen sorgfältig aus. Speichere oder drucke dein Ergebnis anschließend als PDF und lade es danach in der Moodle-Aufgabe hoch.“
+4. Bewertungs-Box mit Legende:
+   ✔✔✔ = sicher
+   ✔✔ = größtenteils sicher
+   ✔ = unsicher
+   ○ = noch nicht sicher
+5. Tabelle mit Spalten:
+   - Ich kann ...
+   - ✔✔✔
+   - ✔✔
+   - ✔
+   - ○
+6. Gelbliche Wiederholungs-Box:
+   - listet automatisch alle Themen auf, bei denen nur ✔ oder ○ gewählt wurde
+7. Textfeld:
+   „Diese Themen möchte ich noch wiederholen“
+8. Textfeld:
+   „Diese Materialien helfen mir beim Lernen“
+   Platzhalter:
+   „Heft, Buch, Erklärvideo, Moodle-Kurs, Lernzettel, Partnerarbeit, Nachfragen bei der Lehrkraft“
+9. Grünliche Zusammenfassungs-Box:
+   - zeigt den Durchschnitt
+   - zeigt den Ampel-Status
+   - bündelt automatisch:
+     - Wiederholungsthemen aus der Tabelle
+     - Texte aus dem Wiederholungsfeld
+     - Texte aus dem Feld zu Lernmaterialien
+10. Button:
+   „Ergebnis als PDF speichern / drucken“
+11. Hinweis beim Button:
+   „Wähle im Druckfenster ‚Als PDF speichern‘ und lade die Datei anschließend in Moodle hoch.“
+
+Funktionen:
+- Berechne live den Durchschnitt:
+  ✔✔✔ = 3 Punkte
+  ✔✔ = 2 Punkte
+  ✔ = 1 Punkt
+  ○ = 0 Punkte
+- Ampelsystem:
+  - Grün ab 2,5
+  - Gelb ab 1,5
+  - Rot unter 1,5
+- Die Ampel soll deutlich sichtbar sein.
+- Alle Zeilen mit 0 oder 1 Punkt erscheinen automatisch in der Wiederholungs-Box.
+- Die Zusammenfassungs-Box aktualisiert sich live.
+- Texteingaben werden sofort übernommen.
+- Der Druckbutton löst window.print() aus.
+- Für die Druckansicht werden unnötige Bedienelemente ausgeblendet.
+- Die PDF-/Druckversion bleibt vollständig lesbar.
+
+Zusätzliche Vorgabe für Schülerinnen und Schüler:
+Der fertige Bogen soll klar dazu auffordern, das Ergebnis als PDF zu speichern und in Moodle hochzuladen.
+
+Ausgabe:
+- Wenn technisch möglich, stelle die fertige HTML-Datei direkt als herunterladbare .html-Datei bereit.
+- Falls das nicht möglich ist, gib ausschließlich den vollständigen HTML-Code in einem einzigen Codeblock aus.
+- Keine zusätzlichen Erklärungen.
+- Keine Hinweise wie „Hier ist dein vollständiger Code“.
+- Keine Admin-Kommentare.
+- Das Ergebnis soll direkt als fertiges Schülerprodukt nutzbar sein.`;
+
+    document.getElementById("promptText").value = longPrompt;
+
+    const encodedPrompt = encodeURIComponent(shortPrompt);
+    document.getElementById("directLink").href = "https://chatgpt.com/?prompt=" + encodedPrompt;
+
+    async function copyPrompt() {
+      try {
+        await navigator.clipboard.writeText(longPrompt);
+        showStatus("Prompt wurde kopiert. Jetzt in ChatGPT einfügen.");
+      } catch (error) {
+        const area = document.getElementById("promptText");
+        area.select();
+        document.execCommand("copy");
+        showStatus("Prompt wurde markiert. Bitte ggf. manuell kopieren.");
+      }
+    }
+
+    function showStatus(message) {
+      const status = document.getElementById("status");
+      status.textContent = message;
+      status.style.display = "block";
+      setTimeout(() => {
+        status.style.display = "none";
+      }, 4500);
+    }
+  </script>
+</body>
+</html>
